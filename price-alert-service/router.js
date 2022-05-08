@@ -7,6 +7,6 @@ const Controller = require("./controller");
 /* GET home page. */
 router.get('/', Controller.Index);
 
-router.post("/start", Controller.CreateAlert);
+router.post("/priceAlert", Controller.CreateAlert);
 
 module.exports = router;

@@ -227,7 +227,7 @@
     console.log(data);
     let result;
     try {
-      result = await axios.post("/start", data);
+      result = await axios.post("/priceAlert", data);
       alert(result.data.message);
     } catch(err) {
       alert(err.response.data.message);
