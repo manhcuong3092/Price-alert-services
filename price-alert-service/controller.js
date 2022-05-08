@@ -23,11 +23,15 @@ exports.Index = async (req, res) => {
 
 exports.CreateAlert = async (req, res) => {
     try {
-        let { asset, price, email, type } = req.body;
+        let { asset, price, type, notice_type, email, telegram, discord } = req.body;
+        console.log(req.body);
 
-        const result = await axios.post(`${ALERT_HOST}/alert`, {
-            asset, price, email, type
-        });
+        let result;
+        try {
+            result = await axios.post(`${ALERT_HOST}/alert`, req.body);
+        } catch (err) {
+            return res.status(400).send({success: false, message: err.response.data.message});
+        }
 
         console.log(result);
         
@@ -35,7 +39,7 @@ exports.CreateAlert = async (req, res) => {
 
     } catch (error) {
         console.log(error);
-        return res.status(500).json(errorObject);
+        return res.status(500).json("Error");
     }
 };
 

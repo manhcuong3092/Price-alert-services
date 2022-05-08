@@ -1,122 +1,238 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title><%= title %></title>
-    <link rel='stylesheet' href='/stylesheets/style.css' />
-    <!-- CSS only -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
-    <!-- JavaScript Bundle with Popper -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.slim.min.js" integrity="sha256-u7e5khyithlIdTpu22PHhENmPcRdFiHRjhAuHcs05RI=" crossorigin="anonymous"></script>
-    <!-- Latest BS-Select compiled and minified CSS/JS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.14.0-beta2/dist/css/bootstrap-select.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.14.0-beta2/dist/js/bootstrap-select.min.js"></script>
-    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-  </head>
-  <body>
-    <h1><%= title %></h1>
-    <h5>Nhập thông tin</h5>
-    <form action="/priceAlert" method="post" onsubmit="">
-      <div class="mb-3">
-        <label for="" class="form-label">Ký hiệu</label>
-        <select class="selectpicker form-control" id="asset" name="asset" data-live-search="true">
-          <% coins.forEach((coin) => { %>
-            <option value="<%= coin %>"><%= coin %></option>
+
+<head>
+  <title>
+    <%= title %>
+  </title>
+  <link rel="stylesheet" href="/stylesheets/style.css" />
+  <!-- CSS only -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous" />
+  <!-- JavaScript Bundle with Popper -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
+    crossorigin="anonymous"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.slim.min.js"
+    integrity="sha256-u7e5khyithlIdTpu22PHhENmPcRdFiHRjhAuHcs05RI=" crossorigin="anonymous"></script>
+  <!-- Latest BS-Select compiled and minified CSS/JS -->
+  <link rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.14.0-beta2/dist/css/bootstrap-select.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.14.0-beta2/dist/js/bootstrap-select.min.js"></script>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+</head>
+
+<body>
+  <h1>
+    <%= title %>
+  </h1>
+  <h5>Nhập thông tin</h5>
+  <form action="/priceAlert" method="post" onsubmit="submitALert(); return false;">
+    <div class="mb-3">
+      <label for="" class="form-label">Ký hiệu</label>
+      <select class="selectpicker form-control" id="asset" name="asset" data-live-search="true">
+        <% coins.forEach((coin)=> { %>
+          <option value="<%= coin %>">
+            <%= coin %>
+          </option>
           <% }); %>
-        </select>
-      </div>
-      <small id="current-price"></small>
-      <p>Điều kiện nhận thông báo</p>
-      <div class="form-check">
-        <input class="form-check-input" type="radio" name="type" id="above" value="above">
-        <label class="form-check-label" for="flexRadioDefault1">
-          Giá trên
-        </label>
-      </div>
-      <div class="form-check">
-        <input class="form-check-input" type="radio" name="type" id="below" value="below" checked>
-        <label class="form-check-label" for="flexRadioDefault2">
-          Giá dưới
-        </label>
-      </div>
-      <div class="mb-3">
-        <label for="" class="form-label">Giá</label>
-        <input type="text" class="form-control" name="price" id="" placeholder="">
-      </div>
-      <div class="mb-3">
-        <label for="" class="form-label">Email nhận thông báo</label>
-        <input type="email" class="form-control" name="email" id="" placeholder="abc@example.com">
-      </div>
-      <button class="btn btn-primary" type="submit">Nhận</button>
-    </form>
-    <h2 class="mt-4">Danh sách nhận thông báo</h2>
-    <div class="container-fluid" id="alerts" style="margin-top: 15px;">
-      <table class="table">
-        <thead>
-          <tr>
-            <th scope="col">STT</th>
-            <th scope="col">Ký hiệu</th>
-            <th scope="col">Điều kiện</th>
-            <th scope="col">Mức giá</th>
-            <th scope="col">Email</th>
-            <th scope="col">Ngày tạo</th>
-          </tr>
-        </thead>
-        <tbody id="alert-list">
-          <% alerts.forEach((alert, index) => { %>
-            <tr>
-              <th scope="row"><%= index + 1 %></th>
-              <td><%= alert.asset %></td>
-              <td><%= alert.type === 'above' ? 'Cao hơn' : 'Thấp hơn' %></td>
-              <td><%= parseFloat(alert.price) %></td>
-              <td><%= alert.email %></td>
-              <td><%= alert.createdAt.toISOString().substring(0, 10) + ' ' + alert.createdAt.toISOString().substring(11, 19) %></td>
-            </tr>
-          <% }); %>
-          
-        </tbody>
-      </table>
+      </select>
     </div>
-  </body>
-  <script>
-    $(function () {
-      $('.asset').selectpicker();
-    });
+    <small id="current-price"></small>
+    <p>Điều kiện nhận thông báo</p>
+    <div class="form-check">
+      <input class="form-check-input" type="radio" name="type" id="above" value="above" />
+      <label class="form-check-label" for="flexRadioDefault1">
+        Giá trên
+      </label>
+    </div>
+    <div class="form-check">
+      <input class="form-check-input" type="radio" name="type" id="below" value="below" checked />
+      <label class="form-check-label" for="flexRadioDefault2">
+        Giá dưới
+      </label>
+    </div>
+    <div class="mb-3">
+      <label for="" class="form-label">Giá ($)</label>
+      <input type="text" class="form-control" name="price" id="" placeholder="" />
+    </div>
+    <div class="mb-3">
+      <label for="" class="form-label">Nhận thông báo qua</label>
+      <div class="form-check">
+        <input class="form-check-input" type="radio" name="notice_type" id="notice_type_email" value="email" checked />
+        <label class="form-check-label" for="flexRadioDefault1">
+          Email
+        </label>
+      </div>
+      <div class="form-check">
+        <input class="form-check-input" type="radio" name="notice_type" id="notice_type_telegram" value="telegram" />
+        <label class="form-check-label" for="flexRadioDefault2">
+          Telegram
+        </label>
+      </div>
+      <div class="form-check">
+        <input class="form-check-input" type="radio" name="notice_type" id="notice_type_discord" value="discord" />
+        <label class="form-check-label" for="flexRadioDefault2">
+          Discord
+        </label>
+      </div>
+      <div id="notice-form">
+        <label for="" class="form-label mt-4">Email</label>
+        <input type="email" class="form-control" name="email" id="" placeholder="abc@example.com" />
+      </div>
+    </div>
+    <button class="btn btn-primary" type="submit">Nhận</button>
+  </form>
+  <h2 class="mt-4">Danh sách nhận thông báo</h2>
+  <div class="container-fluid" id="alerts" style="margin-top: 15px">
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">STT</th>
+          <th scope="col">Ký hiệu</th>
+          <th scope="col">Điều kiện</th>
+          <th scope="col">Mức giá</th>
+          <th scope="col">Phương thức thông báo</th>
+          <th scope="col">Ngày tạo</th>
+        </tr>
+      </thead>
+      <tbody id="alert-list">
+        <% alerts.forEach((alert, index)=> { %>
+          <tr>
+            <th scope="row">
+              <%= index + 1 %>
+            </th>
+            <td>
+              <%= alert.asset %>
+            </td>
+            <td>
+              <%= alert.type==='above' ? 'Cao hơn' : 'Thấp hơn' %>
+            </td>
+            <td>
+              <%= parseFloat(alert.price) %>
+            </td>
+            <td>
+              <%= alert.notice_type %>
+            </td>
+            <td>
+              <%= alert.createdAt.substring(0, 10) + ' ' + alert.createdAt.substring(11, 19)
+                %>
+            </td>
+          </tr>
+          <% }); %>
+      </tbody>
+    </table>
+  </div>
+</body>
+<script>
+  $(function () {
+    $(".asset").selectpicker();
+  });
 
-    $(document).ready(async () => {
-      var symbol = $('#asset').val();
-      var result = await axios.get(`<%= COIN_HOST %>/coin/${symbol}`);
-      $('#current-price').text(`Current ${symbol} price is ${ parseFloat(result.data.price) }$`);
-    })
+  $(document).ready(async () => {
+    var symbol = $("#asset").val();
+    var result = await axios.get(`<%= COIN_HOST %>/coin/${symbol}`);
+    $("#current-price").text(
+      `Giá hiện tại của ${symbol} là ${parseFloat(result.data.price)}$`
+    );
+  });
 
-    setInterval(async () => {
-      var result = await axios.get("<%= ALERT_HOST %>/alerts");
-      if(result) {
-        var append = "";
-        result.data.alerts.map((alert, index) => {
-          alert.createdAt = alert.createdAt.substring(0, 10) + ' ' + alert.createdAt.substring(11, 19);
-          append += `
+  setInterval(async () => {
+    var result = await axios.get("<%= ALERT_HOST %>/alerts");
+    if (result) {
+      var append = "";
+      result.data.alerts.map((alert, index) => {
+        alert.createdAt =
+          alert.createdAt.substring(0, 10) +
+          " " +
+          alert.createdAt.substring(11, 19);
+        append += `
             <tr>
-              <th scope="row">${index + 1 }</th>
+              <th scope="row">${index + 1}</th>
               <td>${alert.asset}</td>
-              <td>${alert.type === 'above' ? 'Cao hơn' : 'Thấp hơn'}</td>
+              <td>${alert.type === "above" ? "Cao hơn" : "Thấp hơn"}</td>
               <td>${parseFloat(alert.price)}</td>
-              <td>${alert.email}</td>
+              <td>${alert.notice_type}</td>
               <td>${alert.createdAt}</td>
             </tr>        
-          `
-        });
+          `;
+      });
 
-        $('#alert-list').empty();
-        $('#alert-list').append(append);
-      }
-    }, 5000);
+      $("#alert-list").empty();
+      $("#alert-list").append(append);
+    }
+  }, 5000);
 
-    $('#asset').change(async () => {
-      var symbol = $('#asset').val();
-      var result = await axios.get(`<%= COIN_HOST %>/coin/${symbol}`);
-      $('#current-price').text(`Current ${symbol} price is ${ parseFloat(result.data.price) }$`);
-    });
-    
-  </script>
+  $("#asset").change(async () => {
+    var symbol = $("#asset").val();
+    var result = await axios.get(`<%= COIN_HOST %>/coin/${symbol}`);
+    $("#current-price").text(
+      `Giá hiện tại của ${symbol} là ${parseFloat(result.data.price)}$`
+    );
+  });
+
+  $("#notice_type_email").on("change", function (e) {
+    var notice_form = `
+        <label for="" class="form-label mt-4">Email</label>
+        <input type="email" class="form-control" name="email" id="" placeholder="abc@example.com">
+      `;
+    $("#notice-form").html(notice_form);
+  });
+
+  $("#notice_type_telegram").on("change", function (e) {
+    var notice_form = `
+        <div class="mt-4">Bắt đầu chat với bot: <a href="https://t.me/fireagebot">https://t.me/fireagebot</a></div>
+        <label for="" class="form-label">Telegram id</label>
+        <input type="text" class="form-control" name="telegram" id="" placeholder="1863620200">
+      `;
+    $("#notice-form").html(notice_form);
+  });
+
+  $("#notice_type_discord").on("change", function (e) {
+    var notice_form = `
+        <label for="" class="form-label mt-4">Discord webhook</label>
+        <input type="text" class="form-control" name="discord" id="" placeholder="https://discord.com/api/webhooks/972773664804196402/5WJEjgoFze0mFPEZcNXn2Eu5i4-xwtPueoozBgv6kw_VD0F2RZ9QhJVdYB16wla-OUk1">
+      `;
+    $("#notice-form").html(notice_form);
+  });
+
+  async function submitALert(e) {
+    var asset = $("#asset").val();
+    var type = $("input[name='type']:checked").val();
+    var price = $("input[name='price']").val();
+    var notice_type = $("input[name='notice_type']:checked").val();
+    var email = $("input[name='email']").val();
+    var discord = $("input[name='discord']").val();
+    var telegram = $("input[name='telegram']").val();
+    console.log(asset);
+    console.log(type);
+    console.log(price);
+    console.log(notice_type);
+    console.log(email);
+    console.log(discord);
+    console.log(telegram);
+    let data = {
+      asset,
+      type,
+      price,
+      notice_type,
+    };
+    if(email) {
+      data.email = email;
+    } else if (discord) {
+      data.discord = discord;
+    } else if (telegram) {
+      data.telegram = telegram;
+    }
+    console.log(data);
+    let result;
+    try {
+      result = await axios.post("/start", data);
+      alert(result.data.message);
+    } catch(err) {
+      alert(err.response.data.message);
+    }
+}
+</script>
+
 </html>
