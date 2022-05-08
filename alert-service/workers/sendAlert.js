@@ -10,10 +10,19 @@ var sendAlert = new CronJob("*/5 * * * * *",   // Execute every 5 seconds
         const priceObj = await currentPrice();
         if (priceObj.error) return;
         const pairs = priceObj.data;
-        console.log(priceObj)
+        // console.log(priceObj)
 
         alerts.forEach((alert, index) => {
-            let message, title, recipient;
+            let message, title, destination;
+
+            if(alert.notice_type === 'email') {
+                destination = alert.email;
+            } else if (alert.notice_type === "discord") {
+                destination = alert.discord;
+            } else if (alert.notice_type === "telegram") {
+                destination = alert.telegram;
+            }
+            // check price
             if (
                 alert.type == "above" &&
                 parseFloat(alert.price) <= parseFloat(pairs[alert.asset])
@@ -21,11 +30,13 @@ var sendAlert = new CronJob("*/5 * * * * *",   // Execute every 5 seconds
                 message = `Price of ${alert.asset} has just exceeded your alert price of ${alert.price} USD.
       Current price is ${pairs[alert.asset]} USD.`;
                 title = `${alert.asset} is up!`;
-                recipient = alert.email;
 
                 console.log(message);
                 axios.post(`${NOTICE_HOST}/notice-sender`, {
-                    email: recipient, message, title
+                    notice_type: alert.notice_type,
+                    destination, 
+                    message, 
+                    title
                 });
 
                 alerts.splice(index, 1)  // remove the alert once pushed to the queue.
@@ -42,8 +53,12 @@ var sendAlert = new CronJob("*/5 * * * * *",   // Execute every 5 seconds
 
                 console.log(message);
                 axios.post(`${NOTICE_HOST}/notice-sender`, {
-                    email: recipient, message, title
+                    notice_type: alert.notice_type,
+                    destination, 
+                    message, 
+                    title
                 });
+
                 alerts.splice(index, 1)  // remove the alert once pushed to the queue.
             }
         });

@@ -1,13 +1,16 @@
 var alerts = require('./alerts');
 const axios = require('axios');
+const {errorObject} = require('./config');
+const COIN_HOST = process.env.COIN_HOST;
 
 exports.CreateAlert = async (req, res) => {
     try {
-        let { asset, price, email, type } = req.body;
-        const result = await axios.get("http://localhost:6000/coin");
+        let { asset, price, type, notice_type, email, telegram, discord } = req.body;
+
+        const result = await axios.get(`${COIN_HOST}/coin`);
         const coins = result.data;
 
-        if (!asset || !price || !email || !type)   //Check whether all the fields are passed
+        if (!asset || !price || !type || !notice_type)   //Check whether all the fields are passed
             return res.status(400).json({
                 error: true,
                 message: "Please provide the required fields",
@@ -27,6 +30,7 @@ exports.CreateAlert = async (req, res) => {
                 message: "Invalid price",
             });
         }
+
         price = parseFloat(price);
         if(price <= 0) {
             return res.status(400).json({
@@ -41,15 +45,29 @@ exports.CreateAlert = async (req, res) => {
                 message: "Type must be above or below",
             });
         }
+        let alert = {
+            asset,
+            price,
+            type,
+            notice_type,
+            createdAt: new Date()
+        }
+
+        if(email && notice_type === 'email') {
+            alert.email = email;
+        } else if(discord && notice_type === 'discord') {
+            alert.discord = discord;
+        } else if(telegram && notice_type === 'telegram') {
+            alert.telegram = telegram;
+        } else {
+            return res.status(400).json({
+                error: true,
+                message: "Invalid notice type",
+            });
+        }
 
         // Create alert by pushing the object to the alerts array.
-        alerts.push({
-            asset: asset,
-            price: price,
-            email: email,
-            type: type.toLowerCase(),
-            createdAt: new Date(),
-        });
+        alerts.push(alert);
 
         return res.send({ success: true, message: "Alert created" }); //Send response
 
