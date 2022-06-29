@@ -131,14 +131,14 @@
 
   $(document).ready(async () => {
     var symbol = $("#asset").val();
-    var result = await axios.get(`<%= COIN_HOST %>/coin/${symbol}`);
+    var result = await axios.get(`<%= NGINX_HOST %>/coin/${symbol}`);
     $("#current-price").text(
       `Giá hiện tại của ${symbol} là ${parseFloat(result.data.price)}$`
     );
   });
 
   setInterval(async () => {
-    var result = await axios.get("<%= ALERT_HOST %>/alerts");
+    var result = await axios.get("<%= NGINX_HOST %>/alerts");
     if (result) {
       var append = "";
       result.data.alerts.map((alert, index) => {
@@ -165,7 +165,7 @@
 
   $("#asset").change(async () => {
     var symbol = $("#asset").val();
-    var result = await axios.get(`<%= COIN_HOST %>/coin/${symbol}`);
+    var result = await axios.get(`<%= NGINX_HOST %>/coin/${symbol}`);
     $("#current-price").text(
       `Giá hiện tại của ${symbol} là ${parseFloat(result.data.price)}$`
     );

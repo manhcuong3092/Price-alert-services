@@ -1,6 +1,7 @@
 const axios = require('axios');
 const ALERT_HOST = process.env.ALERT_HOST;
 const COIN_HOST = process.env.COIN_HOST;
+const NGINX_HOST = process.env.NGINX_HOST;
 
 exports.Index = async (req, res) => {
     try {
@@ -12,20 +13,17 @@ exports.Index = async (req, res) => {
         console.log(coins);
         console.log(alerts);
         
-        res.render('index', { coins, alerts, COIN_HOST, ALERT_HOST, title: 'Thông báo biến động giá.' });
+        res.render('index', { coins, alerts, COIN_HOST, ALERT_HOST, NGINX_HOST, title: 'Thông báo biến động giá.' });
 
     } catch (error) {
         console.log(error);
-        return res.status(500).json(errorObject);
+        return res.status(500).json(error);
     }
 };
 
 
 exports.CreateAlert = async (req, res) => {
     try {
-        let { asset, price, type, notice_type, email, telegram, discord } = req.body;
-        console.log(req.body);
-
         let result;
         try {
             result = await axios.post(`${ALERT_HOST}/alert`, req.body);
