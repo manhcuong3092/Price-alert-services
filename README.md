@@ -15,7 +15,7 @@ Clone the project
   git clone https://github.com/manhcuong3092/Price-alert-services
 ```
 
-#### Run each service, open new cmd for each one
+#### Run all services, open cmd
 First, create .env file base on .env.example file (change email, password) in each service directory
 
 Use docker compose to run all service
